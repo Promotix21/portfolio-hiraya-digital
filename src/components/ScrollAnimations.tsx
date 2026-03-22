@@ -1,278 +1,628 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-/* ─── Panel sub‑components ─── */
+try {
+  gsap.registerPlugin(ScrollTrigger);
+} catch (_) {
+  // SSR safety – ScrollTrigger requires a DOM
+}
 
+/* ─── Brand tokens ─── */
+const NAVY = '#0B1F33';
+const TEAL = '#1FA5A3';
+const SURFACE = '#F5F7FA';
+
+/* ════════════════════════════════════════════════════════════
+   Panel 1 – Google Ads Dashboard
+   ════════════════════════════════════════════════════════════ */
 function GoogleAdsPanel() {
   return (
-    <div className="w-screen h-screen flex-shrink-0 bg-navy flex items-center justify-center p-8 md:p-16">
-      <div className="max-w-5xl w-full">
-        <span className="label-tag-dark mb-4 inline-block">Interactive Demo</span>
-        <h3 className="text-3xl md:text-4xl font-bold text-white mb-8">
-          Google Ads Command Center
-        </h3>
+    <div
+      className="panel"
+      style={{
+        width: '100vw',
+        height: '100vh',
+        flexShrink: 0,
+        background: NAVY,
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* subtle grid */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* CPC Card */}
-          <div className="glass-card-dark p-6">
-            <p className="text-white/40 text-sm font-mono mb-1">Cost Per Click</p>
-            <div className="flex items-baseline gap-3">
-              <span className="text-white/30 line-through text-lg">$2.40</span>
-              <span className="text-3xl font-bold text-gradient animate-counter">$0.95</span>
-            </div>
-            <p className="text-teal-light text-xs mt-2 font-mono">▼ 60% reduction</p>
-          </div>
-          {/* CTR Card */}
-          <div className="glass-card-dark p-6">
-            <p className="text-white/40 text-sm font-mono mb-1">Click-Through Rate</p>
-            <div className="flex items-baseline gap-3">
-              <span className="text-white/30 line-through text-lg">1.2%</span>
-              <span className="text-3xl font-bold text-gradient">4.8%</span>
-            </div>
-            <p className="text-teal-light text-xs mt-2 font-mono">▲ 300% increase</p>
-          </div>
-          {/* Conversions Card */}
-          <div className="glass-card-dark p-6">
-            <p className="text-white/40 text-sm font-mono mb-1">Conversions</p>
-            <span className="text-3xl font-bold text-gradient">1,247</span>
-            <p className="text-teal-light text-xs mt-2 font-mono">▲ +89% MoM</p>
-          </div>
+      <div style={{ position: 'relative', zIndex: 1, width: '85%', maxWidth: 900 }}>
+        <span
+          style={{
+            fontSize: 11,
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+            color: TEAL,
+            fontFamily: 'monospace',
+          }}
+        >
+          Interactive Demo &middot; Representative Data
+        </span>
+
+        <h2
+          style={{
+            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontWeight: 700,
+            margin: '0.5rem 0 1.5rem',
+          }}
+        >
+          Google Ads Dashboard
+        </h2>
+
+        {/* Metrics row */}
+        <div
+          className="ads-metrics"
+          style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 32 }}
+        >
+          <MetricCard label="CPC" from="$2.40" to="$0.95" color="#22c55e" />
+          <MetricCard label="CTR" from="1.2%" to="4.8%" color={TEAL} />
+          <MetricCard label="Conversions" from="34" to="187" color="#f59e0b" />
         </div>
 
-        {/* Mini bar chart */}
-        <div className="glass-card-dark p-6">
-          <p className="text-white/40 text-sm font-mono mb-4">Campaign Performance (12 weeks)</p>
-          <div className="flex items-end gap-2 h-32">
-            {[25, 35, 30, 45, 50, 42, 60, 72, 68, 80, 90, 95].map((h, i) => (
+        {/* Bar chart */}
+        <div className="ads-bars" style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 120, marginBottom: 32 }}>
+          {[65, 45, 80, 55, 90, 70, 95].map((h, i) => (
+            <div
+              key={i}
+              className="ads-bar"
+              style={{
+                width: 28,
+                height: 0,
+                borderRadius: 4,
+                background: `linear-gradient(to top, ${TEAL}, ${TEAL}88)`,
+              }}
+              data-height={h}
+            />
+          ))}
+        </div>
+
+        {/* Campaign table */}
+        <div className="ads-table">
+          {['Brand Campaign', 'Retargeting', 'Lookalike Audiences', 'Search – Non-brand'].map(
+            (name, i) => (
               <div
                 key={i}
-                className="flex-1 bg-gradient-to-t from-teal to-teal-light rounded-t opacity-0"
+                className="ads-row"
                 style={{
-                  height: `${h}%`,
-                  animation: `chart-grow 0.8s ease-out ${i * 0.1}s forwards`,
-                  transformOrigin: 'bottom',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '10px 16px',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  opacity: 0,
+                  transform: 'translateY(12px)',
+                  fontSize: 14,
                 }}
-              />
-            ))}
-          </div>
-          <div className="flex justify-between mt-2 text-white/20 text-xs font-mono">
-            <span>W1</span><span>W6</span><span>W12</span>
-          </div>
+              >
+                <span>{name}</span>
+                <span style={{ color: '#22c55e' }}>Active</span>
+              </div>
+            ),
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+/* ════════════════════════════════════════════════════════════
+   Panel 2 – Search Console Rankings
+   ════════════════════════════════════════════════════════════ */
 function SearchConsolePanel() {
-  const keywords = [
-    { keyword: 'growth engineering agency', from: 47, to: 3 },
-    { keyword: 'marketing automation tools', from: 52, to: 5 },
-    { keyword: 'ai lead scoring', from: 38, to: 1 },
-    { keyword: 'custom marketing dashboard', from: 61, to: 4 },
-    { keyword: 'technical seo services', from: 44, to: 2 },
-  ];
-
   return (
-    <div className="w-screen h-screen flex-shrink-0 bg-white flex items-center justify-center p-8 md:p-16">
-      <div className="max-w-5xl w-full">
-        <span className="label-tag mb-4 inline-block">Interactive Demo</span>
-        <h3 className="text-3xl md:text-4xl font-bold text-navy mb-8">
-          Search Console Rankings
-        </h3>
+    <div
+      className="panel"
+      style={{
+        width: '100vw',
+        height: '100vh',
+        flexShrink: 0,
+        background: SURFACE,
+        color: NAVY,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ position: 'relative', zIndex: 1, width: '85%', maxWidth: 900 }}>
+        <span
+          style={{
+            fontSize: 11,
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+            color: TEAL,
+            fontFamily: 'monospace',
+          }}
+        >
+          Interactive Demo &middot; Representative Data
+        </span>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="glass-card p-6">
-            <p className="text-navy/40 text-sm font-mono mb-1">Total Impressions</p>
-            <span className="text-3xl font-bold text-gradient">847K</span>
-            <p className="text-teal text-xs mt-2 font-mono">▲ +340% growth</p>
-          </div>
-          <div className="glass-card p-6">
-            <p className="text-navy/40 text-sm font-mono mb-1">Total Clicks</p>
-            <span className="text-3xl font-bold text-gradient">52.3K</span>
-            <p className="text-teal text-xs mt-2 font-mono">▲ +280% growth</p>
-          </div>
-          <div className="glass-card p-6">
-            <p className="text-navy/40 text-sm font-mono mb-1">Avg Position</p>
-            <span className="text-3xl font-bold text-gradient">4.2</span>
-            <p className="text-teal text-xs mt-2 font-mono">▲ from 38.7</p>
-          </div>
+        <h2
+          style={{
+            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontWeight: 700,
+            margin: '0.5rem 0 1.5rem',
+          }}
+        >
+          Search Console Rankings
+        </h2>
+
+        {/* Ranking graph */}
+        <div
+          style={{
+            position: 'relative',
+            height: 180,
+            marginBottom: 32,
+            background: '#fff',
+            borderRadius: 12,
+            padding: 20,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          }}
+        >
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 400 140"
+            preserveAspectRatio="none"
+            style={{ overflow: 'visible' }}
+          >
+            <text x="0" y="15" fontSize="10" fill="#999">1</text>
+            <text x="0" y="55" fontSize="10" fill="#999">25</text>
+            <text x="0" y="95" fontSize="10" fill="#999">50</text>
+            <text x="0" y="135" fontSize="10" fill="#999">100</text>
+            <polyline
+              className="gsc-line"
+              points="30,120 80,110 140,90 200,60 260,35 320,20 380,10"
+              fill="none"
+              stroke={TEAL}
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray="600"
+              strokeDashoffset="600"
+            />
+            {[
+              [30, 120], [80, 110], [140, 90], [200, 60],
+              [260, 35], [320, 20], [380, 10],
+            ].map(([cx, cy], i) => (
+              <circle
+                key={i}
+                className="gsc-dot"
+                cx={cx}
+                cy={cy}
+                r="4"
+                fill={TEAL}
+                opacity="0"
+              />
+            ))}
+          </svg>
         </div>
 
-        {/* Rankings table */}
-        <div className="glass-card overflow-hidden">
-          <div className="grid grid-cols-3 gap-4 p-4 text-sm font-mono text-navy/40 border-b border-surface-border">
-            <span>Keyword</span>
-            <span className="text-center">Before</span>
-            <span className="text-center">After</span>
-          </div>
-          {keywords.map((kw, i) => (
+        {/* Keywords table */}
+        <div
+          style={{
+            background: '#fff',
+            borderRadius: 12,
+            padding: '8px 0',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          }}
+        >
+          {[
+            { kw: 'digital marketing agency', from: 58, to: 3 },
+            { kw: 'seo services philippines', from: 42, to: 1 },
+            { kw: 'google ads management', from: 67, to: 5 },
+            { kw: 'lead generation automation', from: 51, to: 4 },
+          ].map((row, i) => (
             <div
-              key={kw.keyword}
-              className="grid grid-cols-3 gap-4 p-4 text-sm border-b border-surface-border last:border-0 opacity-0"
-              style={{ animation: `fadeIn 0.5s ease-out ${i * 0.15}s forwards` }}
+              key={i}
+              className="gsc-row"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 20px',
+                borderBottom: i < 3 ? '1px solid #eee' : 'none',
+                fontSize: 14,
+                opacity: 0,
+                transform: 'translateX(-20px)',
+              }}
             >
-              <span className="text-navy font-medium">{kw.keyword}</span>
-              <span className="text-center text-navy/30">#{kw.from}</span>
-              <span className="text-center font-bold text-gradient">#{kw.to}</span>
+              <span style={{ fontWeight: 500 }}>{row.kw}</span>
+              <span>
+                <span style={{ color: '#999', textDecoration: 'line-through', marginRight: 8 }}>
+                  #{row.from}
+                </span>
+                <span style={{ color: TEAL, fontWeight: 700, fontSize: 18 }}>
+                  #{row.to}
+                </span>
+              </span>
             </div>
           ))}
         </div>
+
+        {/* Counters */}
+        <div style={{ display: 'flex', gap: 24, marginTop: 24 }}>
+          <CounterBox label="Impressions" value="284910" />
+          <CounterBox label="Clicks" value="23487" />
+        </div>
       </div>
     </div>
   );
 }
 
+/* ════════════════════════════════════════════════════════════
+   Panel 3 – Live Analytics
+   ════════════════════════════════════════════════════════════ */
 function LiveAnalyticsPanel() {
   return (
-    <div className="w-screen h-screen flex-shrink-0 bg-navy flex items-center justify-center p-8 md:p-16">
-      <div className="max-w-5xl w-full">
-        <span className="label-tag-dark mb-4 inline-block">Interactive Demo</span>
-        <h3 className="text-3xl md:text-4xl font-bold text-white mb-8">
-          Live Analytics Dashboard
-        </h3>
+    <div
+      className="panel"
+      style={{
+        width: '100vw',
+        height: '100vh',
+        flexShrink: 0,
+        background: NAVY,
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* grid bg */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }}
+      />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          <div className="glass-card-dark p-5">
-            <p className="text-white/40 text-xs font-mono mb-1">Active Now</p>
-            <span className="text-2xl font-bold text-gradient">1,847</span>
-            <div className="mt-2 flex items-center gap-1">
-              <span className="w-2 h-2 bg-teal-light rounded-full animate-pulse" />
-              <span className="text-teal-light text-xs">Live</span>
+      <div style={{ position: 'relative', zIndex: 1, width: '85%', maxWidth: 900 }}>
+        <span
+          style={{
+            fontSize: 11,
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+            color: TEAL,
+            fontFamily: 'monospace',
+          }}
+        >
+          Interactive Demo &middot; Representative Data
+        </span>
+
+        <h2
+          style={{
+            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontWeight: 700,
+            margin: '0.5rem 0 1.5rem',
+          }}
+        >
+          Live Analytics
+        </h2>
+
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 32 }}>
+          {/* Visitor counter */}
+          <div
+            style={{
+              flex: '1 1 200px',
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: 12,
+              padding: 24,
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
+              Active Visitors
+            </div>
+            <div
+              className="visitor-count"
+              style={{ fontSize: 48, fontWeight: 700, fontFamily: 'monospace', color: TEAL }}
+            >
+              0
             </div>
           </div>
-          <div className="glass-card-dark p-5">
-            <p className="text-white/40 text-xs font-mono mb-1">Page Views</p>
-            <span className="text-2xl font-bold text-gradient">24.5K</span>
-            <p className="text-teal-light text-xs mt-2">▲ +12% today</p>
-          </div>
-          <div className="glass-card-dark p-5">
-            <p className="text-white/40 text-xs font-mono mb-1">Bounce Rate</p>
-            <span className="text-2xl font-bold text-gradient">18%</span>
-            <p className="text-teal-light text-xs mt-2">▼ from 42%</p>
-          </div>
-          <div className="glass-card-dark p-5">
-            <p className="text-white/40 text-xs font-mono mb-1">Avg Session</p>
-            <span className="text-2xl font-bold text-gradient">4m 32s</span>
-            <p className="text-teal-light text-xs mt-2">▲ +85%</p>
+
+          {/* Bounce rate */}
+          <div
+            style={{
+              flex: '1 1 200px',
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: 12,
+              padding: 24,
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
+              Bounce Rate
+            </div>
+            <div
+              className="bounce-value"
+              style={{ fontSize: 48, fontWeight: 700, fontFamily: 'monospace', color: '#22c55e' }}
+            >
+              68%
+            </div>
           </div>
         </div>
 
-        {/* Live chart visualization */}
-        <div className="glass-card-dark p-6">
-          <p className="text-white/40 text-sm font-mono mb-4">Real-time Page Views</p>
-          <svg viewBox="0 0 600 120" className="w-full h-32">
-            <defs>
-              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#1FA5A3" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#1FA5A3" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0,100 C50,90 100,70 150,65 C200,60 250,50 300,40 C350,30 400,35 450,25 C500,20 550,15 600,10"
-              fill="none"
-              stroke="#1FA5A3"
-              strokeWidth="2"
-              className="animate-chart-grow"
-              style={{ transformOrigin: 'left', strokeDasharray: 800, strokeDashoffset: 800, animation: 'draw-line 2s ease-out forwards' }}
+        {/* World map placeholder with pinging dots */}
+        <div
+          style={{
+            position: 'relative',
+            height: 200,
+            background: 'rgba(255,255,255,0.02)',
+            borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.06)',
+            overflow: 'hidden',
+            marginBottom: 24,
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage:
+                'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+              backgroundSize: '20px 20px',
+            }}
+          />
+          {[
+            { top: '30%', left: '20%', delay: '0s' },
+            { top: '45%', left: '48%', delay: '0.7s' },
+            { top: '35%', left: '75%', delay: '1.4s' },
+            { top: '55%', left: '35%', delay: '2.1s' },
+            { top: '25%', left: '60%', delay: '0.3s' },
+            { top: '60%', left: '80%', delay: '1.8s' },
+          ].map((dot, i) => (
+            <span
+              key={i}
+              className="ping-dot"
+              style={{
+                position: 'absolute',
+                top: dot.top,
+                left: dot.left,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: TEAL,
+                boxShadow: `0 0 12px ${TEAL}`,
+                animationDelay: dot.delay,
+              }}
             />
-            <path
-              d="M0,100 C50,90 100,70 150,65 C200,60 250,50 300,40 C350,30 400,35 450,25 C500,20 550,15 600,10 L600,120 L0,120Z"
-              fill="url(#chartGrad)"
-              opacity="0.5"
+          ))}
+          <span
+            style={{
+              position: 'absolute',
+              bottom: 8,
+              right: 12,
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.3)',
+              fontFamily: 'monospace',
+            }}
+          >
+            Global Traffic Map
+          </span>
+        </div>
+
+        {/* Page views chart */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            borderRadius: 12,
+            padding: 20,
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>
+            Page Views (24h)
+          </div>
+          <svg width="100%" height="60" viewBox="0 0 400 60" preserveAspectRatio="none">
+            <polyline
+              className="analytics-line"
+              points="0,55 40,48 80,50 120,38 160,42 200,28 240,30 280,18 320,22 360,10 400,8"
+              fill="none"
+              stroke={TEAL}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray="600"
+              strokeDashoffset="600"
             />
           </svg>
-          {/* Ping dots - world map simulation */}
-          <div className="relative mt-6 h-16 overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-around">
-              {[0, 1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="relative">
-                  <span
-                    className="block w-2 h-2 bg-teal rounded-full"
-                    style={{ animation: `pulse-slow 2s ease-in-out ${i * 0.4}s infinite` }}
-                  />
-                  <span
-                    className="absolute inset-0 w-2 h-2 bg-teal rounded-full animate-ping"
-                    style={{ animationDelay: `${i * 0.4}s` }}
-                  />
-                </div>
-              ))}
-            </div>
-            <p className="absolute bottom-0 left-0 text-white/20 text-xs font-mono">
-              Visitors from 23 countries
-            </p>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function AutomationEnginePanel() {
-  const steps = [
-    { label: 'Form Submit', status: 'complete' },
-    { label: 'AI Scoring', status: 'complete' },
-    { label: 'Enrichment', status: 'complete' },
-    { label: 'CRM Sync', status: 'complete' },
-    { label: 'Assignment', status: 'active' },
-    { label: 'Notification', status: 'pending' },
+/* ════════════════════════════════════════════════════════════
+   Panel 4 – Automation Engine
+   ════════════════════════════════════════════════════════════ */
+function AutomationPanel() {
+  const nodes = [
+    { label: 'Lead Captured', x: 60 },
+    { label: 'AI Scoring', x: 185 },
+    { label: 'CRM Routing', x: 310 },
+    { label: 'Nurture Sent', x: 435 },
   ];
 
   return (
-    <div className="w-screen h-screen flex-shrink-0 bg-surface flex items-center justify-center p-8 md:p-16">
-      <div className="max-w-5xl w-full">
-        <span className="label-tag mb-4 inline-block">Interactive Demo</span>
-        <h3 className="text-3xl md:text-4xl font-bold text-navy mb-8">
+    <div
+      className="panel"
+      style={{
+        width: '100vw',
+        height: '100vh',
+        flexShrink: 0,
+        background: SURFACE,
+        color: NAVY,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ position: 'relative', zIndex: 1, width: '85%', maxWidth: 900 }}>
+        <span
+          style={{
+            fontSize: 11,
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+            color: TEAL,
+            fontFamily: 'monospace',
+          }}
+        >
+          Interactive Demo &middot; Representative Data
+        </span>
+
+        <h2
+          style={{
+            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontWeight: 700,
+            margin: '0.5rem 0 1.5rem',
+          }}
+        >
           Automation Engine
-        </h3>
+        </h2>
 
         {/* Flow diagram */}
-        <div className="glass-card p-8 mb-8">
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {steps.map((step, i) => (
-              <div key={step.label} className="flex items-center gap-3">
-                <div
-                  className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all ${
-                    step.status === 'complete'
-                      ? 'bg-teal/10 border-teal text-teal'
-                      : step.status === 'active'
-                        ? 'bg-teal text-white border-teal animate-pulse'
-                        : 'bg-surface border-surface-border text-navy/40'
-                  }`}
-                  style={{ animation: step.status !== 'active' ? `fadeIn 0.5s ease-out ${i * 0.2}s both` : undefined }}
-                >
-                  {step.status === 'complete' && '✓ '}
-                  {step.label}
-                </div>
-                {i < steps.length - 1 && (
-                  <svg width="24" height="12" className="text-navy/20 flex-shrink-0 hidden md:block">
-                    <line x1="0" y1="6" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2">
-                      <animate attributeName="stroke-dashoffset" from="6" to="0" dur="1s" repeatCount="indefinite" />
-                    </line>
-                    <polygon points="16,2 24,6 16,10" fill="currentColor" />
-                  </svg>
-                )}
-              </div>
+        <div
+          className="flow-diagram"
+          style={{
+            position: 'relative',
+            background: '#fff',
+            borderRadius: 16,
+            padding: '40px 24px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+            marginBottom: 32,
+            overflow: 'hidden',
+          }}
+        >
+          <svg
+            width="100%"
+            height="80"
+            viewBox="0 0 520 80"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ display: 'block', margin: '0 auto' }}
+          >
+            {[0, 1, 2].map((i) => (
+              <line
+                key={i}
+                className="flow-pipe"
+                x1={nodes[i].x + 40}
+                y1={40}
+                x2={nodes[i + 1].x}
+                y2={40}
+                stroke="#ddd"
+                strokeWidth="3"
+                strokeDasharray="8 4"
+                strokeDashoffset="0"
+              />
             ))}
-          </div>
+            {nodes.map((node, i) => (
+              <g key={i}>
+                <rect
+                  className="flow-node"
+                  x={node.x}
+                  y={16}
+                  width={80}
+                  height={48}
+                  rx={10}
+                  fill="#e8e8e8"
+                  stroke="#ddd"
+                  strokeWidth="1.5"
+                />
+                <text
+                  x={node.x + 40}
+                  y={44}
+                  textAnchor="middle"
+                  fontSize="9"
+                  fontWeight="600"
+                  fill={NAVY}
+                >
+                  {node.label}
+                </text>
+              </g>
+            ))}
+          </svg>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass-card p-6">
-            <p className="text-navy/40 text-sm font-mono mb-1">Leads Processed Today</p>
-            <span className="text-3xl font-bold text-gradient">1,247</span>
-            <p className="text-teal text-xs mt-2 font-mono">Fully automated</p>
+        {/* Status indicators */}
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 32 }}>
+          {['Email Sent', 'CRM Updated', 'Slack Notified', 'Report Logged'].map((status, i) => (
+            <div
+              key={i}
+              className="status-indicator"
+              style={{
+                flex: '1 1 140px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '12px 16px',
+                background: '#fff',
+                borderRadius: 10,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                fontSize: 13,
+                fontWeight: 500,
+              }}
+            >
+              <span
+                className="status-dot"
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: '#ddd',
+                  flexShrink: 0,
+                  transition: 'background 0.3s',
+                }}
+              />
+              {status}
+            </div>
+          ))}
+        </div>
+
+        {/* Leads counter */}
+        <div
+          style={{
+            textAlign: 'center',
+            background: '#fff',
+            borderRadius: 12,
+            padding: 24,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          }}
+        >
+          <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
+            Leads processed today
           </div>
-          <div className="glass-card p-6">
-            <p className="text-navy/40 text-sm font-mono mb-1">Avg Processing Time</p>
-            <span className="text-3xl font-bold text-gradient">3.2s</span>
-            <p className="text-teal text-xs mt-2 font-mono">Down from 24 hours</p>
-          </div>
-          <div className="glass-card p-6">
-            <p className="text-navy/40 text-sm font-mono mb-1">Error Rate</p>
-            <span className="text-3xl font-bold text-gradient">0.01%</span>
-            <p className="text-teal text-xs mt-2 font-mono">99.99% uptime</p>
+          <div
+            className="leads-value"
+            style={{ fontSize: 42, fontWeight: 700, fontFamily: 'monospace', color: TEAL }}
+          >
+            0
           </div>
         </div>
       </div>
@@ -280,77 +630,344 @@ function AutomationEnginePanel() {
   );
 }
 
-/* ─── Main ScrollAnimations component ─── */
+/* ════════════════════════════════════════════════════════════
+   Shared sub-components
+   ════════════════════════════════════════════════════════════ */
+function MetricCard({
+  label,
+  from,
+  to,
+  color,
+}: {
+  label: string;
+  from: string;
+  to: string;
+  color: string;
+}) {
+  return (
+    <div
+      style={{
+        flex: '1 1 140px',
+        background: 'rgba(255,255,255,0.04)',
+        borderRadius: 12,
+        padding: '16px 20px',
+        border: '1px solid rgba(255,255,255,0.08)',
+      }}
+    >
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+        <span
+          style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}
+        >
+          {from}
+        </span>
+        <span style={{ fontSize: 28, fontWeight: 700, color }}>{to}</span>
+      </div>
+    </div>
+  );
+}
 
+function CounterBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        flex: '1 1 160px',
+        background: '#fff',
+        borderRadius: 12,
+        padding: '16px 20px',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+      }}
+    >
+      <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>{label}</div>
+      <div
+        className="counter-value"
+        style={{ fontSize: 28, fontWeight: 700, fontFamily: 'monospace', color: TEAL }}
+        data-value={value}
+      >
+        0
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   Main export – Horizontal Scroll Showcase
+   ════════════════════════════════════════════════════════════ */
 export default function ScrollAnimations() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
+    if (typeof window === 'undefined') return;
 
-    async function initGSAP() {
-      try {
-        const gsapModule = await import('gsap');
-        const scrollTriggerModule = await import('gsap/ScrollTrigger');
-        const gsap = gsapModule.default;
-        const ScrollTrigger = scrollTriggerModule.ScrollTrigger;
-        gsap.registerPlugin(ScrollTrigger);
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    if (!section || !track) return;
 
-        if (!containerRef.current || !trackRef.current) return;
+    const ctx = gsap.context(() => {
+      const panels = track.querySelectorAll<HTMLDivElement>('.panel');
+      const totalPanels = panels.length;
 
-        const panels = trackRef.current.children;
-        const totalPanels = panels.length;
-
-        const st = ScrollTrigger.create({
-          trigger: containerRef.current,
+      /* ── Horizontal scroll pin ── */
+      gsap.to(track, {
+        x: () => -(track.scrollWidth - window.innerWidth),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
           start: 'top top',
           end: `+=${totalPanels * 100}%`,
           scrub: 1,
           pin: true,
-          animation: gsap.to(trackRef.current, {
-            x: () => -(trackRef.current!.scrollWidth - window.innerWidth),
-            ease: 'none',
-          }),
+          anticipatePin: 1,
           invalidateOnRefresh: true,
+        },
+      });
+
+      /* ── Panel 1 – Google Ads ── */
+      const adsBars = track.querySelectorAll<HTMLDivElement>('.ads-bar');
+      const adsRows = track.querySelectorAll<HTMLDivElement>('.ads-row');
+
+      adsBars.forEach((bar) => {
+        gsap.to(bar, {
+          height: Number(bar.dataset.height),
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: '+=50%',
+            scrub: 1,
+          },
         });
+      });
 
-        cleanup = () => st.kill();
-      } catch {
-        // GSAP not available - panels stack vertically as fallback
+      adsRows.forEach((row, i) => {
+        gsap.to(row, {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          delay: i * 0.1,
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: '+=60%',
+            scrub: 1,
+          },
+        });
+      });
+
+      /* ── Panel 2 – Search Console ── */
+      const gscLine = track.querySelector<SVGPolylineElement>('.gsc-line');
+      const gscDots = track.querySelectorAll<SVGCircleElement>('.gsc-dot');
+      const gscRows = track.querySelectorAll<HTMLDivElement>('.gsc-row');
+      const counterValues = track.querySelectorAll<HTMLDivElement>('.counter-value');
+
+      if (gscLine) {
+        gsap.to(gscLine, {
+          strokeDashoffset: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: '+=100%',
+            end: '+=175%',
+            scrub: 1,
+          },
+        });
       }
-    }
 
-    // Only init on desktop
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      initGSAP();
-    }
+      gscDots.forEach((dot, i) => {
+        gsap.to(dot, {
+          opacity: 1,
+          scrollTrigger: {
+            trigger: section,
+            start: `+=${110 + i * 8}%`,
+            end: `+=${120 + i * 8}%`,
+            scrub: 1,
+          },
+        });
+      });
 
-    return () => cleanup?.();
+      gscRows.forEach((row, i) => {
+        gsap.to(row, {
+          opacity: 1,
+          x: 0,
+          scrollTrigger: {
+            trigger: section,
+            start: `+=${115 + i * 8}%`,
+            end: `+=${135 + i * 8}%`,
+            scrub: 1,
+          },
+        });
+      });
+
+      counterValues.forEach((el) => {
+        const raw = el.dataset.value || '0';
+        const target = parseInt(raw.replace(/,/g, ''), 10);
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: target,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: section,
+            start: '+=120%',
+            end: '+=180%',
+            scrub: 1,
+          },
+          onUpdate() {
+            el.textContent = Math.round(obj.val).toLocaleString();
+          },
+        });
+      });
+
+      /* ── Panel 3 – Live Analytics ── */
+      const analyticsLine = track.querySelector<SVGPolylineElement>('.analytics-line');
+      const visitorCount = track.querySelector<HTMLDivElement>('.visitor-count');
+      const bounceValue = track.querySelector<HTMLDivElement>('.bounce-value');
+
+      if (analyticsLine) {
+        gsap.to(analyticsLine, {
+          strokeDashoffset: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: '+=200%',
+            end: '+=275%',
+            scrub: 1,
+          },
+        });
+      }
+
+      if (visitorCount) {
+        const vObj = { val: 0 };
+        gsap.to(vObj, {
+          val: 1342,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: section,
+            start: '+=200%',
+            end: '+=280%',
+            scrub: 1,
+          },
+          onUpdate() {
+            visitorCount.textContent = Math.round(vObj.val).toLocaleString();
+          },
+        });
+      }
+
+      if (bounceValue) {
+        const bObj = { val: 68 };
+        gsap.to(bObj, {
+          val: 31,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: section,
+            start: '+=210%',
+            end: '+=280%',
+            scrub: 1,
+          },
+          onUpdate() {
+            bounceValue.textContent = `${Math.round(bObj.val)}%`;
+          },
+        });
+      }
+
+      /* ── Panel 4 – Automation Engine ── */
+      const flowNodes = track.querySelectorAll<SVGRectElement>('.flow-node');
+      const flowPipes = track.querySelectorAll<SVGLineElement>('.flow-pipe');
+      const statusDots = track.querySelectorAll<HTMLSpanElement>('.status-dot');
+      const leadsValue = track.querySelector<HTMLDivElement>('.leads-value');
+
+      flowNodes.forEach((node, i) => {
+        gsap.to(node, {
+          attr: { fill: TEAL, stroke: TEAL },
+          scrollTrigger: {
+            trigger: section,
+            start: `+=${305 + i * 15}%`,
+            end: `+=${315 + i * 15}%`,
+            scrub: 1,
+          },
+        });
+      });
+
+      flowPipes.forEach((pipe, i) => {
+        gsap.to(pipe, {
+          attr: { stroke: TEAL },
+          strokeDashoffset: -24,
+          scrollTrigger: {
+            trigger: section,
+            start: `+=${310 + i * 15}%`,
+            end: `+=${340 + i * 15}%`,
+            scrub: 1,
+          },
+        });
+      });
+
+      statusDots.forEach((dot, i) => {
+        gsap.to(dot, {
+          background: '#22c55e',
+          scrollTrigger: {
+            trigger: section,
+            start: `+=${320 + i * 10}%`,
+            end: `+=${330 + i * 10}%`,
+            scrub: 1,
+          },
+        });
+      });
+
+      if (leadsValue) {
+        const lObj = { val: 0 };
+        gsap.to(lObj, {
+          val: 1247,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: section,
+            start: '+=310%',
+            end: '+=380%',
+            scrub: 1,
+          },
+          onUpdate() {
+            leadsValue.textContent = Math.round(lObj.val).toLocaleString();
+          },
+        });
+      }
+    }, section);
+
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section id="showcase" ref={containerRef} className="relative overflow-hidden">
-      <div
-        ref={trackRef}
-        className="flex flex-col md:flex-row md:flex-nowrap"
-      >
-        <GoogleAdsPanel />
-        <SearchConsolePanel />
-        <LiveAnalyticsPanel />
-        <AutomationEnginePanel />
-      </div>
-
-      {/* Inline keyframes for panel animations */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+    <>
+      {/* Ping-dot animation keyframes */}
+      <style>{`
+        @keyframes ping-pulse {
+          0% { box-shadow: 0 0 0 0 ${TEAL}88; }
+          70% { box-shadow: 0 0 0 12px ${TEAL}00; }
+          100% { box-shadow: 0 0 0 0 ${TEAL}00; }
         }
-        @keyframes draw-line {
-          to { stroke-dashoffset: 0; }
+        .ping-dot {
+          animation: ping-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
       `}</style>
-    </section>
+
+      <section
+        id="showcase"
+        ref={sectionRef}
+        style={{ width: '100%', overflow: 'hidden' }}
+      >
+        <div
+          ref={trackRef}
+          style={{
+            display: 'flex',
+            flexWrap: 'nowrap',
+            width: 'fit-content',
+          }}
+        >
+          <GoogleAdsPanel />
+          <SearchConsolePanel />
+          <LiveAnalyticsPanel />
+          <AutomationPanel />
+        </div>
+      </section>
+    </>
   );
 }

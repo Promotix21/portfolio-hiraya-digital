@@ -1,6 +1,17 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+try {
+  gsap.registerPlugin(ScrollTrigger);
+} catch (_) {
+  // SSR safety – ScrollTrigger requires a DOM
+}
+
+const NAVY = '#0B1F33';
+const TEAL = '#1FA5A3';
 
 interface ParallaxDividerProps {
   text: string;
@@ -8,57 +19,106 @@ interface ParallaxDividerProps {
 }
 
 export default function ParallaxDivider({ text, subtext }: ParallaxDividerProps) {
-  const textRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const section = sectionRef.current;
     const textEl = textRef.current;
     if (!section || !textEl) return;
 
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const rect = section.getBoundingClientRect();
-          const offset = rect.top * 0.3;
-          textEl.style.transform = `translateY(${offset}px)`;
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
+    const ctx = gsap.context(() => {
+      gsap.to(textEl, {
+        y: -60,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+    }, section);
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => ctx.revert();
   }, []);
 
   return (
-    <div
+    <section
       ref={sectionRef}
-      className="relative h-48 md:h-56 overflow-hidden bg-navy flex items-center justify-center"
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: 200,
+        background: NAVY,
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      {/* Background grid pattern */}
+      {/* Subtle grid pattern */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
         style={{
+          position: 'absolute',
+          inset: 0,
           backgroundImage:
-            'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)',
+            'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }}
       />
 
-      {/* Teal glow */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal/10 to-transparent" />
+      {/* Teal gradient glow */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          height: 200,
+          borderRadius: '50%',
+          background: `radial-gradient(ellipse at center, ${TEAL}18 0%, transparent 70%)`,
+          pointerEvents: 'none',
+        }}
+      />
 
-      <div ref={textRef} className="relative text-center z-10">
-        <p className="font-mono text-2xl md:text-3xl text-white/50 tracking-wider">
+      {/* Parallax text */}
+      <div
+        ref={textRef}
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          textAlign: 'center',
+          transform: 'translateY(30px)',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: 'monospace',
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+            fontWeight: 600,
+            color: 'rgba(255,255,255,0.6)',
+            letterSpacing: 1,
+          }}
+        >
           {text}
-        </p>
+        </div>
         {subtext && (
-          <p className="mt-2 font-mono text-sm text-white/25">{subtext}</p>
+          <div
+            style={{
+              fontFamily: 'monospace',
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
+              color: 'rgba(255,255,255,0.3)',
+              marginTop: 8,
+            }}
+          >
+            {subtext}
+          </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

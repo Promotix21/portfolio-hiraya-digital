@@ -5,6 +5,8 @@ import CaseStudyEngine from '@/components/CaseStudyEngine';
 import ScrollAnimations from '@/components/ScrollAnimations';
 import AutomationShowcase from '@/components/AutomationShowcase';
 import AISystems from '@/components/AISystems';
+import SocialShowcase from '@/components/SocialShowcase';
+import ReelsShowcase from '@/components/ReelsShowcase';
 import CreativeGrid from '@/components/CreativeGrid';
 import ProcessIntelligence from '@/components/ProcessIntelligence';
 import TrustBuilder from '@/components/TrustBuilder';
@@ -47,7 +49,13 @@ export default function Home() {
         subtext="Creative execution that converts"
       />
 
-      {/* Creative Grid - Light */}
+      {/* Social Media Creatives - Light (Scattered Magazine) */}
+      <SocialShowcase />
+
+      {/* Reels & GIFs - Dark Cinematic */}
+      <ReelsShowcase />
+
+      {/* Creative Capabilities - Light */}
       <CreativeGrid />
 
       {/* Process - Dark Parallax */}
