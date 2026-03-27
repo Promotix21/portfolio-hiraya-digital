@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { date, time, duration, memberId, name, email, company, notes } = body;
+    const { date, time, duration, memberId, name, email, company, notes, ref } = body;
 
     // Honeypot check
     if (body.website) {
@@ -218,7 +218,7 @@ export async function POST(req: NextRequest) {
         const meetLink = created.conferenceData?.entryPoints?.find((e: any) => e.entryPointType === 'video')?.uri;
 
         // Notify Hiraya IQ team
-        notifyHirayaIQ({ name, email, company, date, time, duration: meetingDuration, member: member.name }).catch(() => {});
+        notifyHirayaIQ({ name, email, company, date, time, duration: meetingDuration, member: member.name, ref }).catch(() => {});
 
         return NextResponse.json({
           success: true,
@@ -233,7 +233,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Notify Hiraya IQ team
-    notifyHirayaIQ({ name, email, company, date, time, duration: meetingDuration, member: member.name }).catch(() => {});
+    notifyHirayaIQ({ name, email, company, date, time, duration: meetingDuration, member: member.name, ref }).catch(() => {});
 
     // Fallback — no calendar, just confirm
     return NextResponse.json({
@@ -249,7 +249,7 @@ export async function POST(req: NextRequest) {
 
 const IQ_API = process.env.NEXT_PUBLIC_IQ_API_URL || '';
 
-async function notifyHirayaIQ(data: { name: string; email: string; company: string; date: string; time: string; duration: number; member: string }) {
+async function notifyHirayaIQ(data: { name: string; email: string; company: string; date: string; time: string; duration: number; member: string; ref?: string }) {
   if (!IQ_API) return;
   await fetch(`${IQ_API}/communication/webhook/booking`, {
     method: 'POST',
