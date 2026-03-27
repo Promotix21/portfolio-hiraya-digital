@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --color-hiraya-blue: #3b5a96;
+  --color-hiraya-blue-dark: #2a416f;
+  --color-hiraya-yellow: #f9b923;
+  --color-hiraya-orange: #f39223;
+  --color-hiraya-dark: #0f172a;
+  --color-hiraya-light: #f8fafc;
+  --color-hiraya-muted: #64748b;
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+:root {
+  --hiraya-blue: #3b5a96;
+  --hiraya-blue-dark: #2a416f;
+  --hiraya-yellow: #f9b923;
+  --hiraya-orange: #f39223;
+  --hiraya-dark: #0f172a;
+  --hiraya-light: #f8fafc;
+  --hiraya-muted: #64748b;
+}
+
+body {
+  background-color: var(--hiraya-light);
+  color: #0f172a;
+  font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark-glass-panel {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-gradient {
+  padding-bottom: 0.1em;
+  line-height: 1.1;
+  background: linear-gradient(to right, #3b5a96, #f9b923);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-brand {
+  background: linear-gradient(135deg, #3b5a96 0%, #2a416f 50%, #f9b923 100%);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Marquee animations for CardShowcase */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-marquee-left {
+  animation: marquee-left linear infinite;
+  will-change: transform;
+}
+.animate-marquee-right {
+  animation: marquee-right linear infinite;
+  will-change: transform;
+}
