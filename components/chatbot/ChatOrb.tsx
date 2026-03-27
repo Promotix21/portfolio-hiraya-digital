@@ -68,6 +68,20 @@ export default function ChatOrb() {
         role: 'assistant', type: 'text',
         content: "Hey! I'm Hiraya's growth assistant. I can help you understand our capabilities, show you our work, or even book a call with our team right here. What are you looking for?",
       });
+      // Notify IQ that a chat session started
+      if (IQ_API) {
+        const ref = getStoredRef();
+        if (ref) {
+          fetch(`${IQ_API}/communication/webhook/portfolio-visit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ref, utm: {}, page: '/chatbot-opened',
+              timestamp: new Date().toISOString(),
+            }),
+          }).catch(() => {});
+        }
+      }
     }
   }
 
@@ -186,6 +200,7 @@ export default function ChatOrb() {
         body: JSON.stringify({
           date: bookingDate, time: bookingTime, duration: 15,
           memberId: 0, name: bookingName, email: bookingEmail, company: bookingCompany,
+          ref: getStoredRef() || undefined,
         }),
       });
       const data = await res.json();
@@ -201,12 +216,22 @@ export default function ChatOrb() {
   async function handleLeadCapture(name: string, email: string) {
     setLeadCaptured(true);
     if (IQ_API) {
+      // Build conversation summary from user messages
+      const userMessages = messages
+        .filter(m => m.role === 'user' && m.type === 'text')
+        .map(m => m.content);
+      const chatSummary = userMessages.length > 0
+        ? userMessages.slice(0, 10).join(' | ')
+        : 'No messages before capture';
+
       fetch(`${IQ_API}/communication/webhook/portfolio-inquiry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name, company: '', email, projectType: 'Chat Inquiry',
           ref: getStoredRef(), utm: {}, source: 'chatbot_capture',
+          chatMessages: messageCount,
+          chatSummary,
         }),
       }).catch(() => {});
     }
